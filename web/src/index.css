@@ -1,0 +1,13 @@
+/* src/index.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #09090A; /* Um fundo escuro moderno (Dark Mode) */
+  color: #FFFFFF; /* Texto branco */
+  font-family: sans-serif; /* Fonte padrão por enquanto */
+  -webkit-font-smoothing: antialiased;
+}
