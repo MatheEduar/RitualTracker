@@ -4,6 +4,8 @@ import express from 'express';
 import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 
+import dayjs from "dayjs";
+
 const app = express();
 const prisma = new PrismaClient();
 
@@ -73,6 +75,43 @@ app.get('/summary', async (req, res) => {
 });
 
 
+// ROTA: DETALHES DO DIA
+// Recebe a data via query param: localhost:3333/day?date=2025-01-05T00:00:00.000Z
+app.get('/day', async (req, res) => {
+  const { date } = req.query;
+
+  // Converte a string para data e zera as horas (começo do dia)
+  // O 'startOf' garante que pegamos o dia exato
+  const parsedDate = dayjs(date).startOf('day').toDate();
+  const weekDay = dayjs(parsedDate).get('day'); // 0 (Dom) a 6 (Sab)
+
+  // 1. Buscar todos os hábitos possíveis
+  // Regra: O hábito deve ter sido criado ANTES ou NO dia escolhido
+  const possibleHabits = await prisma.habit.findMany({
+    where: {
+      created_at: {
+        lte: parsedDate, // Less Than or Equal (Menor ou igual a data)
+      },
+      // Aqui poderíamos filtrar por dia da semana se tivéssemos essa feature (ex: só segundas)
+      // Por enquanto, assumimos que todo hábito é diário.
+    }
+  });
+
+  // 2. Buscar quais hábitos foram completados NESTE dia
+  const completedHabits = await prisma.dayHabit.findMany({
+    where: {
+      day_id: {
+        equals: parsedDate,
+      }
+    }
+  });
+
+  // Retorna a lista de possíveis e apenas os IDs dos completados
+  return res.json({
+    possibleHabits,
+    completedHabits: completedHabits.map(row => row.habit_id),
+  });
+});
 
 
 // 5. INICIALIZAR O SERVIDOR

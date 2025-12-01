@@ -41,11 +41,12 @@ export function SummaryTable() {
           });
 
           return (
-            <HabitDay 
-              key={date.toString()}
-              amount={dayInSummary?.amount} 
-              completed={dayInSummary?.completed} 
-            />
+              <HabitDay 
+                key={date.toString()}
+                date={date} 
+                amount={dayInSummary?.amount} 
+                completed={dayInSummary?.completed} 
+              />
           )
         })}
 

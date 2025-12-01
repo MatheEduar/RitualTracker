@@ -5,6 +5,11 @@ import { api } from './lib/axios'; // 2. Importe nossa configuração do Axios
 import styles from './App.module.css';
 import './index.css';
 
+import 'dayjs/locale/pt-br';
+import dayjs from 'dayjs';
+
+dayjs.locale('pt-br');
+
 export function App() {
   // Estado para armazenar os hábitos (Memória do componente)
   // Começa como um array vazio []

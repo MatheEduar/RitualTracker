@@ -18,3 +18,62 @@
 .level3 { background-color: #7c3aed; border-color: #8b5cf6; } /* Violet 700 */
 .level4 { background-color: #8b5cf6; border-color: #a78bfa; } /* Violet 500 */
 .level5 { background-color: #a78bfa; border-color: #c4b5fd; } /* Violet 400 */
+
+/* ... seus estilos .level1, .level2 etc ... */
+
+/* Fundo Escuro (Overlay) que fica atrás do modal */
+.overlay {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6); /* Preto transparente */
+  position: fixed;
+  inset: 0; /* top:0, right:0, bottom:0, left:0 */
+  z-index: 10;
+}
+
+/* O Conteúdo do Modal (A Janela) */
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Centraliza exato */
+  
+  width: 100%;
+  max-width: 24rem; /* aprox 380px */
+  background-color: var(--surface);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  z-index: 20;
+}
+
+/* Botão de Fechar (X) */
+.closeButton {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  line-height: 0; /* Remove altura de linha estranha em ícones */
+}
+
+.closeButton:hover {
+  color: var(--text-primary);
+}
+
+/* Títulos */
+.dayLabel {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+
+.dateTitle {
+  font-weight: 800;
+  font-size: 1.875rem; /* 30px */
+  margin-top: 0.25rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.25;
+}
