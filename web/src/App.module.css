@@ -1,0 +1,31 @@
+/* src/App.module.css */
+
+/* O container que segura a tela inteira */
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* A "folha de papel" ou área central */
+.content {
+  width: 100%;
+  max-width: 48rem; /* Aprox 768px */
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem; /* Espaço entre o cabeçalho e a lista */
+}
+
+/* Estilo do Logo/Título */
+.logo {
+  font-size: 1.875rem; /* 30px */
+  font-weight: 800; /* Extra bold */
+  line-height: 1.25;
+}
+
+.logo span {
+  color: var(--primary); /* Usa a variável roxa do index.css */
+}

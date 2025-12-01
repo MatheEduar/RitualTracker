@@ -1,11 +1,22 @@
 // src/App.jsx
-// Esse é o componente principal, a "Sala de Estar" da aplicação.
+import { Header } from './components/Header'; // Importamos a peça pronta
+import styles from './App.module.css';
+import './index.css';
 
 export function App() {
   return (
-    <div>
-      <h1>Ritual</h1>
-      <p>O seu habit tracker minimalista.</p>
+    <div className={styles.container}>
+      <div className={styles.content}>
+        
+        {/* Aqui entra o nosso componente isolado */}
+        <Header />
+
+        {/* Placeholder para a futura tabela */}
+        <div style={{ marginTop: '3rem' }}>
+          <p>Aqui virá a tabela de hábitos...</p>
+        </div>
+
+      </div>
     </div>
   )
 }

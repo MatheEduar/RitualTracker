@@ -1,0 +1,36 @@
+.header {
+  width: 100%;
+  max-width: 3xl; /* Isso aqui não existe no CSS puro, vamos usar pixels ou rem */
+  margin: 0 auto;
+  display: flex; /* Alinha itens lado a lado */
+  align-items: center; /* Centraliza verticalmente */
+  justify-content: space-between; /* Empurra um pra cada ponta */
+}
+
+/* O Logo */
+.logo {
+  /* Vamos importar o SVG ou usar texto estilizado por enquanto */
+  height: 2rem; 
+}
+
+/* O Botão "Novo Hábito" */
+.newHabitButton {
+  border: 1px solid var(--primary); /* Borda roxa */
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 600; /* Semi-bold */
+  padding: 0.75rem 1.5rem; /* Espaçamento interno */
+  border-radius: 0.5rem; /* Cantos arredondados */
+  display: flex;
+  align-items: center;
+  gap: 0.75rem; /* Espaço entre ícone e texto */
+  cursor: pointer;
+  transition: all 0.2s; /* Suaviza a animação */
+}
+
+/* Estado de Hover (Quando passa o mouse) */
+.newHabitButton:hover {
+  border-color: var(--primary-hover);
+  background-color: var(--primary); /* Preenche de roxo */
+  color: #fff;
+}
