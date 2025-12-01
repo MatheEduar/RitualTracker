@@ -1,31 +1,24 @@
-/* src/App.module.css */
-
-/* O container que segura a tela inteira */
 .container {
   width: 100vw;
   height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: center; /* Centraliza horizontalmente */
+  align-items: center;     /* Centraliza verticalmente */
+  background-color: var(--background);
 }
 
-/* A "folha de papel" ou área central */
 .content {
   width: 100%;
-  max-width: 48rem; /* Aprox 768px */
-  padding: 1.5rem;
+  max-width: 100%; /* Garante que usa a tela toda se precisar */
+  padding: 2rem;
+  
   display: flex;
   flex-direction: column;
-  gap: 4rem; /* Espaço entre o cabeçalho e a lista */
-}
-
-/* Estilo do Logo/Título */
-.logo {
-  font-size: 1.875rem; /* 30px */
-  font-weight: 800; /* Extra bold */
-  line-height: 1.25;
-}
-
-.logo span {
-  color: var(--primary); /* Usa a variável roxa do index.css */
+  gap: 3rem;
+  
+  /* TRUQUE DE SÊNIOR: */
+  /* Se o conteúdo for maior que a tela, permite scroll sem cortar o topo/esquerda */
+  max-height: 100vh;
+  overflow-y: auto; 
+  align-items: center; /* Centraliza o Header e a Tabela */
 }

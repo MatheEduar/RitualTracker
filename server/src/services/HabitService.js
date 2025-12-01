@@ -2,9 +2,19 @@ import dayjs from 'dayjs';
 import { prisma } from '../lib/prisma.js';
 
 export const habitService = {
-  async create({ title }) {
+    async create({ title, weekDays }) { // Recebe weekDays (array de números [0, 1, 5])
     const habit = await prisma.habit.create({
-      data: { title }
+      data: {
+        title,
+        created_at: new Date(), // Força a data de agora
+        weekDays: {
+          create: weekDays.map(weekDay => {
+            return {
+              week_day: weekDay,
+            }
+          })
+        }
+      }
     });
     return habit;
   },
@@ -40,4 +50,5 @@ export const habitService = {
       });
     }
   }
+
 };

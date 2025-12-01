@@ -2,15 +2,22 @@ import { habitService } from '../services/HabitService.js';
 
 export const habitController = {
   async create(req, res) {
-    const { title } = req.body;
+    // Agora esperamos title E weekDays
+    const { title, weekDays } = req.body;
 
-    if (!title) {
-      return res.status(400).json({ error: 'O título do hábito é obrigatório, jovem!' });
+    if (!title || !weekDays) {
+      return res.status(400).json({ error: 'Título e dias da semana são obrigatórios!' });
+    }
+    
+    // Pequena validação de segurança: weekDays deve ser um array vazio ou cheio
+    if (!Array.isArray(weekDays)) {
+      return res.status(400).json({ error: 'WeekDays deve ser um array de números (0-6).' });
     }
 
-    const habit = await habitService.create({ title });
+    const habit = await habitService.create({ title, weekDays });
     return res.status(201).json(habit);
   },
+
 
   async index(req, res) {
     const habits = await habitService.findAll();

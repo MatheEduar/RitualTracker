@@ -1,0 +1,37 @@
+/* Container para alinhar texto e barra */
+.container {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+/* O Texto "50%" */
+.label {
+  font-size: 1.25rem; /* 20px */
+  font-weight: 700;   /* Negrito */
+  color: var(--text-secondary); /* Cinza claro */
+  margin-bottom: 0.5rem;
+  display: block; /* Garante que fique em linha própria */
+}
+
+/* O Trilho (Fundo da barra) */
+.progressTrack {
+  height: 0.75rem; /* 12px */
+  border-radius: 0.75rem;
+  
+  /* MUDANÇA: Usando uma cor mais clara para destacar do fundo preto */
+  background-color: #3f3f46; /* Um cinza médio (Zinc 700) */
+  /* Ou use var(--border) se quiser algo mais sutil */
+  
+  width: 100%;
+  overflow: hidden;
+}
+
+/* A Barra Roxa (Indicador) */
+.progressIndicator {
+  height: 100%;
+  background-color: var(--primary); /* Roxo */
+  border-radius: 0.75rem;
+  
+  /* Animação suave */
+  transition: width 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}

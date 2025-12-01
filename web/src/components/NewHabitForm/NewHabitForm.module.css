@@ -1,0 +1,114 @@
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* Remove a margem do primeiro label para não ficar buraco */
+.label:first-child {
+  margin-top: 0;
+}
+
+.input {
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--background); /* Fundo mais escuro que o modal */
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+}
+
+.input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-color: transparent;
+}
+
+/* Botões dos Dias da Semana */
+.weekDaySelector {
+  display: flex;
+  flex-direction: column; /* Em mobile/modal pequeno pode quebrar? Não, vamos usar gap */
+  gap: 0.5rem;
+}
+
+/* Vamos agrupar os botões numa linha */
+.weekDaySelector {
+  flex-direction: row;
+  flex-wrap: wrap; /* Se não couber, quebra linha */
+}
+
+.weekDayButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  transition: all 0.2s;
+}
+
+.weekDayButton:hover {
+  background: var(--border);
+  color: var(--text-primary);
+}
+
+/* Quando selecionado (Roxo ou Verde) */
+.weekDayButton[data-state='checked'] {
+  background: var(--primary); /* Roxo */
+  border-color: var(--primary);
+  color: white;
+}
+
+.weekDayButton[data-state='checked']:hover {
+  background: var(--primary-hover);
+}
+
+/* Botão Confirmar (Verde) */
+.submitButton {
+  margin-top: 2rem;
+  width: 100%;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #16a34a; /* Verde sucesso */
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  cursor: pointer;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover {
+  background: #15803d;
+}
+
+.submitButton:focus {
+  outline: 2px solid #16a34a;
+  outline-offset: 2px;
+}

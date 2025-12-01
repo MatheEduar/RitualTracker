@@ -1,36 +1,83 @@
+/* Container do Header Principal */
 .header {
   width: 100%;
-  max-width: 3xl; /* Isso aqui não existe no CSS puro, vamos usar pixels ou rem */
+  max-width: 48rem;
   margin: 0 auto;
-  display: flex; /* Alinha itens lado a lado */
-  align-items: center; /* Centraliza verticalmente */
-  justify-content: space-between; /* Empurra um pra cada ponta */
-}
-
-/* O Logo */
-.logo {
-  /* Vamos importar o SVG ou usar texto estilizado por enquanto */
-  height: 2rem; 
-}
-
-/* O Botão "Novo Hábito" */
-.newHabitButton {
-  border: 1px solid var(--primary); /* Borda roxa */
-  background: transparent;
-  color: var(--text-primary);
-  font-weight: 600; /* Semi-bold */
-  padding: 0.75rem 1.5rem; /* Espaçamento interno */
-  border-radius: 0.5rem; /* Cantos arredondados */
   display: flex;
   align-items: center;
-  gap: 0.75rem; /* Espaço entre ícone e texto */
-  cursor: pointer;
-  transition: all 0.2s; /* Suaviza a animação */
+  justify-content: space-between;
 }
 
-/* Estado de Hover (Quando passa o mouse) */
+.newHabitButton {
+  border: 1px solid var(--primary);
+  background: transparent;
+  color: var(--primary);
+  font-weight: 600;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
 .newHabitButton:hover {
   border-color: var(--primary-hover);
-  background-color: var(--primary); /* Preenche de roxo */
-  color: #fff;
+  background-color: var(--primary);
+  color: white;
+}
+
+/* --- ESTILOS DO MODAL (Aqui estava o problema) --- */
+
+/* O Fundo Escuro atrás do modal */
+.overlay {
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.75); /* Preto com 75% opacidade */
+  position: fixed;
+  inset: 0; /* Cola nos 4 cantos da tela */
+  z-index: 999; /* Garante que fica acima de tudo */
+}
+
+/* A Janela em si */
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Centraliza exato */
+  
+  width: 90%; /* Em celular ocupa 90% */
+  max-width: 28rem; /* Em PC trava em 450px aprox */
+  
+  background-color: var(--surface); /* Cinza escuro do tema */
+  border-radius: 12px;
+  padding: 2.5rem 3rem; /* Espaçamento interno generoso */
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  z-index: 1000; /* Fica acima do overlay */
+  border: 1px solid var(--border);
+}
+
+/* O Botão X de fechar */
+.closeButton {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  line-height: 0;
+}
+
+.closeButton:hover {
+  color: var(--text-primary);
+}
+
+/* O Título "Criar Hábito" */
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 2rem; /* Empurra o formulário pra baixo */
 }

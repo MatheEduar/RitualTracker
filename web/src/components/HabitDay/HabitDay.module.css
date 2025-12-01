@@ -1,17 +1,18 @@
 .habitDay {
-  width: 2.5rem;  /* 40px */
-  height: 2.5rem; /* 40px */
-  background-color: var(--surface); /* Cinza escuro */
-  border: 2px solid var(--border);
-  border-radius: 0.5rem; /* Levemente arredondado */
+  width: 0.875rem;  /* 14px (Bem pequeno) */
+  height: 0.875rem; 
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px; /* Cantos quase retos, raio menor */
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .habitDay:hover {
-  border-color: var(--text-secondary); /* Borda mais clara ao passar o mouse */
+  border-color: var(--text-primary);
+  transform: scale(1.2); /* Um zoom maior no hover pra facilitar o clique */
+  z-index: 10; /* Fica por cima dos vizinhos ao dar zoom */
 }
-
 
 .level1 { background-color: #4c1d95; border-color: #5b21b6; } /* Violet 900 */
 .level2 { background-color: #6d28d9; border-color: #7c3aed; } /* Violet 800 */

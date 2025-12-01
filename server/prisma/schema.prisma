@@ -16,6 +16,7 @@ model Habit {
   created_at DateTime @default(now())
 
   dayHabits  DayHabit[] // Relação com os dias completados
+  weekDays   HabitWeekDays[]
 
   @@map("habits")
 }
@@ -31,4 +32,15 @@ model DayHabit {
 
   @@unique([day_id, habit_id]) // Não pode marcar o mesmo hábito 2x no mesmo dia
   @@map("day_habits")
+}
+
+model HabitWeekDays {
+  id       String @id @default(uuid())
+  habit_id String
+  week_day Int    // 0 = Domingo, 1 = Segunda... 6 = Sábado
+
+  habit    Habit  @relation(fields: [habit_id], references: [id], onDelete: Cascade)
+
+  @@unique([habit_id, week_day]) // Não pode ter 2 Segundas para o mesmo hábito
+  @@map("habit_week_days")
 }
