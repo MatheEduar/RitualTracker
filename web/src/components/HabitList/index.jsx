@@ -1,39 +1,86 @@
 import * as Checkbox from '@radix-ui/react-checkbox';
 import { Check } from 'phosphor-react';
+import { useEffect, useState } from 'react'; // Importe useState e useEffect
+import { habitService } from '../../services/habitService'; // Importe o serviço
 import { useDayDetails } from '../../hooks/useDayDetails';
+import dayjs from 'dayjs';
 import styles from './HabitList.module.css';
 
 export function HabitList({ date }) {
-  // 1. Usamos o Controller para buscar os dados
   const { dayInfo, isDayInfoLoading } = useDayDetails(date);
+  
+  // Estado Local para controlar os checks (Optimistic UI)
+  // Começa vazio, mas será preenchido assim que o dayInfo chegar
+  const [habitsInfo, setHabitsInfo] = useState(null);
 
-  // Enquanto carrega, podemos mostrar um esqueleto ou apenas null
-  if (isDayInfoLoading) {
+  // Sincroniza o estado local quando os dados da API chegam
+  useEffect(() => {
+    if (dayInfo) {
+      setHabitsInfo(dayInfo);
+    }
+  }, [dayInfo]);
+
+  // Função que lida com o clique
+  async function handleToggleHabit(habitId) {
+    // 1. Verifica se já está marcado
+    const isHabitAlreadyCompleted = habitsInfo.completedHabits.includes(habitId);
+
+    // 2. Cria a nova lista (Imutabilidade)
+    let completedHabits = [];
+
+    if (isHabitAlreadyCompleted) {
+      // Se estava marcado, remove da lista (filtra tudo que não for esse ID)
+      completedHabits = habitsInfo.completedHabits.filter(id => id !== habitId);
+    } else {
+      // Se não estava, adiciona na lista
+      completedHabits = [...habitsInfo.completedHabits, habitId];
+    }
+
+    // 3. Atualiza a tela IMEDIATAMENTE (Optimistic Update)
+    setHabitsInfo({
+      possibleHabits: habitsInfo.possibleHabits,
+      completedHabits,
+    });
+
+    // 4. Chama o backend em background
+    // Importante: Passamos a data original do dia clicado
+    // Convertemos para ISO para viajar seguro no JSON
+    await habitService.toggleHabit(habitId, dayjs(date).toISOString());
+  }
+
+  // Loading state
+  if (isDayInfoLoading || !habitsInfo) {
     return <div style={{ marginTop: '1rem' }}>Carregando hábitos...</div>;
   }
 
+  // Verifica se a data é passada (você não pode editar o passado? Ou pode?)
+  // Regra de Negócio: Vamos permitir editar passado, mas não futuro.
+  const isDateInPast = dayjs(date).endOf('day').isBefore(new Date());
+  
+  // Desabilita se for futuro? (Opcional, vamos deixar livre por enquanto)
+  const isDisabled = false; 
+
   return (
     <div className={styles.habitList}>
-      {dayInfo?.possibleHabits.map(habit => {
-        // Verifica se este hábito específico está na lista de completados
-        const isCompleted = dayInfo.completedHabits.includes(habit.id);
+      {habitsInfo.possibleHabits.map(habit => {
+        // Agora olhamos para o nosso ESTADO LOCAL, não direto pro dayInfo
+        const isCompleted = habitsInfo.completedHabits.includes(habit.id);
 
         return (
           <Checkbox.Root
             key={habit.id}
             className={styles.checkboxRoot}
             checked={isCompleted}
-            // onCheckedChange={() => handleToggle(habit.id)} // Faremos a ação de clicar no próximo passo
-            disabled={true} // Vamos deixar desabilitado só por enquanto até fazermos a ação de toggle
+            // AQUI LIGAMOS O FIO:
+            onCheckedChange={() => handleToggleHabit(habit.id)}
+            disabled={isDisabled}
           >
-            {/* O quadrado visual */}
             <div className={styles.checkboxIndicatorContainer}>
               <Checkbox.Indicator>
                 <Check size={20} className={styles.checkIcon} />
               </Checkbox.Indicator>
             </div>
 
-            {/* O texto */}
             <span className={styles.habitTitle}>
               {habit.title}
             </span>

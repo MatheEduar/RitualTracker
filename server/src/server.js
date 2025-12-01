@@ -114,6 +114,56 @@ app.get('/day', async (req, res) => {
 });
 
 
+// src/server.js (Adicione junto das outras rotas)
+
+// ROTA: TOGGLE DO HÁBITO
+// Patch: /habits/:id/toggle
+app.patch('/habits/:id/toggle', async (req, res) => {
+  const { id } = req.params; // ID do hábito
+  
+  // O Frontend vai mandar a data que estamos clicando? 
+  // Se não mandar, assumimos Hoje? 
+  // Para ser robusto e permitir marcar dias passados, vamos pedir a data no corpo.
+  const habit_id = id;
+  
+  // Validação simples
+  if (!req.body.date) {
+    return res.status(400).json({ error: 'Data é obrigatória' });
+  }
+
+  // Zera a hora para garantir consistência
+  const date = dayjs(req.body.date).startOf('day').toDate();
+
+  // 1. Verifica se já existe o registro desse hábito nesse dia
+  const dayHabit = await prisma.dayHabit.findUnique({
+    where: {
+      day_id_habit_id: {
+        day_id: date,
+        habit_id: habit_id,
+      }
+    }
+  });
+
+  if (dayHabit) {
+    // CENÁRIO A: Já estava marcado -> Desmarcar (Deletar o registro)
+    await prisma.dayHabit.delete({
+      where: {
+        id: dayHabit.id,
+      }
+    });
+  } else {
+    // CENÁRIO B: Não estava marcado -> Marcar (Criar o registro)
+    await prisma.dayHabit.create({
+      data: {
+        day_id: date,
+        habit_id: habit_id,
+      }
+    });
+  }
+
+  return res.status(200).send(); // Retorna OK vazio
+});
+
 // 5. INICIALIZAR O SERVIDOR
 const PORT = 3333;
 app.listen(PORT, () => {

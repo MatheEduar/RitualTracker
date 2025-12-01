@@ -16,8 +16,10 @@ export const habitService = {
     return response.data;
   },
 
-  // (Futuro) Marcar/Desmarcar hábito
-  toggleHabit: async (id) => {
-    await api.patch(`/habits/${id}/toggle`);
+  toggleHabit: async (id, date) => {
+    // Precisamos enviar a data no body para o backend saber qual dia alterar
+    await api.patch(`/habits/${id}/toggle`, {
+      date: date // envia a data ISO
+    });
   }
 };
