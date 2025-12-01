@@ -1,0 +1,61 @@
+.habitList {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem; /* Espaço entre os itens */
+}
+
+.checkboxRoot {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  outline: none; /* Remove o contorno padrão feio do browser */
+}
+
+/* O quadrado do checkbox */
+.checkboxIndicatorContainer {
+  height: 2rem;
+  width: 2rem;
+  background-color: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 0.5rem;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+/* Quando o mouse passa por cima (Hover) */
+.checkboxRoot:hover .checkboxIndicatorContainer {
+  border-color: var(--text-secondary);
+}
+
+/* ESTADO: Marcado (Checked) */
+/* O Radix coloca o atributo data-state="checked" automaticamente */
+.checkboxRoot[data-state="checked"] .checkboxIndicatorContainer {
+  background-color: #22c55e; /* Verde Sucesso */
+  border-color: #22c55e;
+}
+
+/* O Texto do Hábito */
+.habitTitle {
+  font-weight: 600;
+  font-size: 1.125rem; /* 18px */
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+/* Quando marcado, risca o texto */
+.checkboxRoot[data-state="checked"] .habitTitle {
+  text-decoration: line-through;
+  color: var(--text-secondary);
+}
+
+/* O ícone de Check (dentro do indicador) */
+.checkIcon {
+  color: white;
+}

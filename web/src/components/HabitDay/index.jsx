@@ -1,22 +1,26 @@
 // src/components/HabitDay/index.jsx
-import * as Dialog from '@radix-ui/react-dialog'; // Importamos a biblioteca
+import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
-import { X } from 'phosphor-react'; // Ícone de fechar
+import { X } from 'phosphor-react';
+import { HabitList } from '../HabitList';
 import styles from './HabitDay.module.css';
 
-// Recebemos a prop 'date' agora
 export function HabitDay({ amount = 0, completed = 0, date }) {
+  // Cálculo da porcentagem
   const completedPercentage = amount > 0 ? Math.round((completed / amount) * 100) : 0;
 
-  // Formatações de data
-  const parsedDate = dayjs(date);
-  const dayOfWeek = parsedDate.format('dddd'); // ex: Domingo
-  const dayAndMonth = parsedDate.format('DD/MM'); // ex: 05/01
+  // CORREÇÃO 3: TÍTULO DO MODAL 📅
+  // Adicionamos 12 horas à data local. 
+  // Se ela for 00:00, vira 12:00. Se o fuso tirar 3h, vira 09:00.
+  // Em ambos os casos, CONTINUA SENDO O MESMO DIA.
+  const parsedDate = dayjs(date).add(12, 'hours');
+
+  const dayOfWeek = parsedDate.format('dddd');
+  const dayAndMonth = parsedDate.format('DD/MM');
 
   return (
     <Dialog.Root>
-      {/* O Trigger é o botão que abre o modal (nosso quadradinho antigo) */}
       <Dialog.Trigger
         className={clsx(styles.habitDay, {
           [styles.level1]: completedPercentage > 0 && completedPercentage < 20,
@@ -27,7 +31,6 @@ export function HabitDay({ amount = 0, completed = 0, date }) {
         })}
       />
 
-      {/* O Portal joga o modal para fora da árvore DOM (no final do body) para evitar bugs de z-index */}
       <Dialog.Portal>
         <Dialog.Overlay className={styles.overlay} />
 
@@ -39,8 +42,7 @@ export function HabitDay({ amount = 0, completed = 0, date }) {
           <span className={styles.dayLabel}>{dayOfWeek}</span>
           <h1 className={styles.dateTitle}>{dayAndMonth}</h1>
 
-          {/* AQUI VIRÁ A LISTA DE HÁBITOS (Próximo passo) */}
-          <p>Lista de hábitos virá aqui...</p>
+          <HabitList date={date} />
           
         </Dialog.Content>
       </Dialog.Portal>
