@@ -1,5 +1,5 @@
-// src/App.jsx
-import { Header } from './components/Header'; // Importamos a peça pronta
+import { Header } from './components/Header';
+import { SummaryTable } from './components/SummaryTable'; // Importe aqui
 import styles from './App.module.css';
 import './index.css';
 
@@ -8,13 +8,10 @@ export function App() {
     <div className={styles.container}>
       <div className={styles.content}>
         
-        {/* Aqui entra o nosso componente isolado */}
         <Header />
-
-        {/* Placeholder para a futura tabela */}
-        <div style={{ marginTop: '3rem' }}>
-          <p>Aqui virá a tabela de hábitos...</p>
-        </div>
+        
+        {/* Aqui entra a tabela */}
+        <SummaryTable />
 
       </div>
     </div>
