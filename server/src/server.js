@@ -24,7 +24,6 @@ app.get('/habits', async (req, res) => {
   return res.json(habits);
 });
 
-// src/server.js (Adicione isso antes do app.listen)
 
 // ROTA: CRIAR HÁBITO
 // O Frontend vai mandar um JSON tipo: { "title": "Beber 2L de água" }
@@ -46,6 +45,34 @@ app.post('/habits', async (req, res) => {
 
   return res.status(201).json(habit);
 });
+
+
+// ROTA: RESUMO (SUMMARY)
+// Retorna uma lista de dias com: Data, Quantos completou, Quantos eram possíveis
+app.get('/summary', async (req, res) => {
+  // Query Raw do Prisma
+  // Selecionamos a data (day_id)
+  // Contamos os registros na tabela day_habits (completed)
+  // Fazemos uma sub-query para contar quantos hábitos existiam naquela data (amount)
+  
+  const summary = await prisma.$queryRaw`
+    SELECT 
+      D.day_id,
+      CAST(COUNT(*) AS int) as completed,
+      (
+        SELECT CAST(COUNT(*) AS int)
+        FROM habits H
+        WHERE H.created_at <= D.day_id
+      ) as amount
+    FROM day_habits D
+    GROUP BY D.day_id
+  `
+
+  // O "raw" pode retornar datas como objetos complexos, o JSON cuida disso
+  return res.json(summary);
+});
+
+
 
 
 // 5. INICIALIZAR O SERVIDOR
