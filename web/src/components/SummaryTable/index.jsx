@@ -1,9 +1,9 @@
 // src/components/SummaryTable/index.jsx
 import dayjs from "dayjs";
-import { useSummary } from "../../hooks/useSummary";
 import { generateDatesFromYearBeginning } from "../../utils/generate-dates-from-year-beginning";
 import { HabitDay } from "../HabitDay";
 import styles from "./SummaryTable.module.css";
+import { useHabits } from "../../context/HabitsContext";
 
 const weekDays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 const summaryDates = generateDatesFromYearBeginning();
@@ -13,7 +13,7 @@ const minimumSummaryDatesSize = 18 * 7;
 const amountOfDaysToFill = minimumSummaryDatesSize - summaryDates.length;
 
 export function SummaryTable() {
-  const { summary, isLoading } = useSummary();
+  const { summary, isLoading } = useHabits();
 
   if (isLoading) {
     return (
