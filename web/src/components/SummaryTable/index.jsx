@@ -1,25 +1,21 @@
-import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import { api } from "../../lib/axios";
 import { generateDatesFromYearBeginning } from "../../utils/generate-dates-from-year-beginning";
 import { HabitDay } from "../HabitDay";
+import { useSummary } from "../../hooks/useSummary"; // Importa nosso "Controller"
 import styles from "./SummaryTable.module.css";
 
 const weekDays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
 const summaryDates = generateDatesFromYearBeginning();
-
-// Para preencher o buraco visual até completar 18 semanas (opcional, só pra ficar bonito)
 const minimumSummaryDatesSize = 18 * 7; 
 const amountOfDaysToFill = minimumSummaryDatesSize - summaryDates.length;
 
 export function SummaryTable() {
-  const [summary, setSummary] = useState([]);
+  // A Lógica complexa foi delegada para o hook
+  const { summary, isLoading } = useSummary();
 
-  useEffect(() => {
-    api.get('summary').then(response => {
-      setSummary(response.data);
-    });
-  }, []);
+  if (isLoading) {
+    return <div className={styles.loading}>Carregando...</div>; // (Opcional: Crie estilo para isso depois)
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -32,25 +28,21 @@ export function SummaryTable() {
       </div>
 
       <div className={styles.grid}>
-        {/* Renderiza os dias reais com dados */}
         {summaryDates.map((date) => {
-          // Procura no array que veio do backend se tem dados para ESSE dia
-          // dayjs(date).isSame... compara ignorando horas/minutos
           const dayInSummary = summary.find(day => {
             return dayjs(date).isSame(day.day_id, 'day')
           });
 
           return (
-              <HabitDay 
-                key={date.toString()}
-                date={date} 
-                amount={dayInSummary?.amount} 
-                completed={dayInSummary?.completed} 
-              />
+            <HabitDay 
+              key={date.toString()}
+              date={date}
+              amount={dayInSummary?.amount} 
+              completed={dayInSummary?.completed} 
+            />
           )
         })}
 
-        {/* Preenche o resto do grid com quadradinhos vazios para não ficar buraco */}
         {amountOfDaysToFill > 0 && Array.from({ length: amountOfDaysToFill }).map((_, i) => {
           return (
             <div key={i} className={styles.habitDayPlaceholder} />
