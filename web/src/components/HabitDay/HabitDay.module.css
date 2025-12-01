@@ -11,3 +11,10 @@
 .habitDay:hover {
   border-color: var(--text-secondary); /* Borda mais clara ao passar o mouse */
 }
+
+
+.level1 { background-color: #4c1d95; border-color: #5b21b6; } /* Violet 900 */
+.level2 { background-color: #6d28d9; border-color: #7c3aed; } /* Violet 800 */
+.level3 { background-color: #7c3aed; border-color: #8b5cf6; } /* Violet 700 */
+.level4 { background-color: #8b5cf6; border-color: #a78bfa; } /* Violet 500 */
+.level5 { background-color: #a78bfa; border-color: #c4b5fd; } /* Violet 400 */

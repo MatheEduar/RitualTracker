@@ -28,3 +28,13 @@
   grid-auto-flow: column; /* Preenche em colunas (vertical primeiro) */
   gap: 0.75rem;
 }
+
+.habitDayPlaceholder {
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: var(--surface);
+  border: 2px solid var(--border);
+  border-radius: 0.5rem;
+  opacity: 0.4; /* Mais apagadinho */
+  cursor: not-allowed;
+}
