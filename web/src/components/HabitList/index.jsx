@@ -5,122 +5,166 @@ import { useEffect, useState } from 'react';
 import { useHabits } from '../../context/HabitsContext';
 import { useDayDetails } from '../../hooks/useDayDetails';
 import { habitService } from '../../services/habitService';
-import { ProgressBar } from '../ProgressBar'; // Certifique-se de ter criado este componente
+import { NotePopover } from '../NotePopover'; // <--- NOVO IMPORT
+import { NumericHabit } from '../NumericHabit';
+import { ProgressBar } from '../ProgressBar';
 import styles from './HabitList.module.css';
 
-/**
- * Componente responsável por exibir a lista de hábitos de um dia específico.
- * Gerencia a marcação/desmarcação (Toggle) com feedback visual instantâneo (Optimistic UI).
- *
- * @param {Object} props - As propriedades do componente.
- * @param {Date} props.date - A data selecionada que será inspecionada.
- */
 export function HabitList({ date }) {
-  // 1. Hook que busca os dados iniciais do dia no Backend
   const { dayInfo, isDayInfoLoading } = useDayDetails(date);
-
-  // 2. Estado local para a Interface Otimista.
-  // Armazena uma cópia dos dados para podermos manipular visualmente antes do backend responder.
   const [habitsInfo, setHabitsInfo] = useState(null);
-
-  // 3. Hook do Contexto Global para disparar atualizações no Grid de Resumo (Heatmap)
   const { refreshSummary } = useHabits();
 
-  /**
-   * Efeito: Sincronização Inicial
-   * Quando os dados chegam da API (dayInfo), atualizamos nosso estado local.
-   */
   useEffect(() => {
     if (dayInfo) {
       setHabitsInfo(dayInfo);
     }
   }, [dayInfo]);
 
-  /**
-   * Lida com a ação de marcar ou desmarcar um hábito.
-   * Executa uma atualização otimista (Optimistic Update).
-   *
-   * @param {string} habitId - O UUID do hábito que foi clicado.
-   */
-  async function handleToggleHabit(habitId) {
-    if (!habitsInfo) return;
+  // --- ATUALIZAÇÃO DA NOTA ---
+  function handleNoteUpdate(habitId, newNote) {
+    // Atualiza o estado local para que, se reabrir o popover, a nota esteja lá
+    const existingRecordIndex = habitsInfo.completedHabits.findIndex(h => h.habit_id === habitId);
+    let newCompletedList = [...habitsInfo.completedHabits];
 
-    // Verifica se o hábito já estava na lista de completados localmente
-    const isHabitAlreadyCompleted = habitsInfo.completedHabits.includes(habitId);
-
-    // Cria uma nova lista de IDs baseada na ação (Adicionar ou Remover)
-    let completedHabits = [];
-
-    if (isHabitAlreadyCompleted) {
-      // Remover da lista
-      completedHabits = habitsInfo.completedHabits.filter(id => id !== habitId);
+    if (existingRecordIndex >= 0) {
+      newCompletedList[existingRecordIndex] = { 
+        ...newCompletedList[existingRecordIndex], 
+        note: newNote 
+      };
     } else {
-      // Adicionar na lista
-      completedHabits = [...habitsInfo.completedHabits, habitId];
+      // Se criou nota sem marcar o hábito, cria o registro
+      newCompletedList.push({ habit_id: habitId, value: 1, note: newNote });
     }
 
-    // A. ATUALIZAÇÃO VISUAL IMEDIATA (Optimistic UI)
-    // O usuário vê o check mudar de cor instantaneamente.
     setHabitsInfo({
       possibleHabits: habitsInfo.possibleHabits,
-      completedHabits,
+      completedHabits: newCompletedList,
     });
-
-    // B. PERSISTÊNCIA NO BACKEND
-    // Envia a requisição em background. Usamos .toISOString() para garantir o formato correto da data.
-    await habitService.toggleHabit(habitId, dayjs(date).toISOString());
-
-    // C. SINCRONIZAÇÃO GLOBAL
-    // Avisa o componente SummaryTable (que está no fundo) para recalcular as cores dos dias.
+    
+    // Notas também contam como interação, então atualizamos o grid? Opcional.
     refreshSummary();
   }
 
-  // Estado de Carregamento Inicial
-  if (isDayInfoLoading || !habitsInfo) {
-    return <div style={{ marginTop: '1rem', color: '#a1a1aa' }}>Carregando hábitos...</div>;
+  // --- LÓGICA NUMÉRICA ---
+  function handleNumericUpdate(habitId, newValue) {
+    const existingRecordIndex = habitsInfo.completedHabits.findIndex(h => h.habit_id === habitId);
+    let newCompletedList = [...habitsInfo.completedHabits];
+
+    if (existingRecordIndex >= 0) {
+      newCompletedList[existingRecordIndex] = { 
+        ...newCompletedList[existingRecordIndex], 
+        value: newValue 
+      };
+    } else {
+      newCompletedList.push({ habit_id: habitId, value: newValue });
+    }
+
+    setHabitsInfo({
+      possibleHabits: habitsInfo.possibleHabits,
+      completedHabits: newCompletedList,
+    });
+    refreshSummary();
   }
 
-  // Cálculo da Porcentagem para a Barra de Progresso
-  const possible = habitsInfo.possibleHabits.length;
-  const completed = habitsInfo.completedHabits.length;
-  // Previne divisão por zero (NaN)
-  const progress = possible > 0 ? Math.round((completed / possible) * 100) : 0;
+  // --- LÓGICA CHECKBOX ---
+  async function handleToggleHabit(habitId) {
+    if (!habitsInfo) return;
 
-  // Regra de Negócio (Opcional): Bloquear edição em dias futuros?
-  // const isDateInFuture = dayjs(date).endOf('day').isAfter(new Date());
-  const isDisabled = false;
+    const isHabitAlreadyCompleted = habitsInfo.completedHabits.some(h => h.habit_id === habitId);
+    let newCompletedList = [];
+
+    if (isHabitAlreadyCompleted) {
+      newCompletedList = habitsInfo.completedHabits.filter(h => h.habit_id !== habitId);
+    } else {
+      newCompletedList = [...habitsInfo.completedHabits, { habit_id: habitId, value: 1 }];
+    }
+
+    setHabitsInfo({
+      possibleHabits: habitsInfo.possibleHabits,
+      completedHabits: newCompletedList,
+    });
+
+    await habitService.toggleHabit(habitId, dayjs(date).toISOString());
+    refreshSummary();
+  }
+
+  if (isDayInfoLoading || !habitsInfo) {
+    return <div style={{ marginTop: '1rem', color: '#a1a1aa' }}>Carregando...</div>;
+  }
+
+  const possible = habitsInfo.possibleHabits.length;
+  const completedCount = habitsInfo.possibleHabits.reduce((acc, habit) => {
+    const record = habitsInfo.completedHabits.find(h => h.habit_id === habit.id);
+    if (!record) return acc;
+    if (habit.goal > 0) return (record.value >= habit.goal) ? acc + 1 : acc;
+    return acc + 1;
+  }, 0);
+
+  const progress = possible > 0 ? Math.round((completedCount / possible) * 100) : 0;
 
   return (
     <div className={styles.habitList}>
-      {/* Barra de Progresso no topo da lista */}
       <ProgressBar progress={progress} />
 
-      {/* Container dos Checkboxes */}
       <div style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {habitsInfo.possibleHabits.map(habit => {
-          // Verifica o estado usando a variável local (otimista)
-          const isCompleted = habitsInfo.completedHabits.includes(habit.id);
+          // Busca o registro deste dia (se houver)
+          const record = habitsInfo.completedHabits.find(h => h.habit_id === habit.id);
+          const currentNote = record ? record.note : '';
 
+          // RENDERIZAÇÃO CONDICIONAL (Numérico vs Checkbox)
+          let content;
+
+          if (habit.goal > 0) {
+            content = (
+              <NumericHabit 
+                habit={habit}
+                date={dayjs(date).toISOString()}
+                initialValue={record ? record.value : 0}
+                onUpdate={(val) => handleNumericUpdate(habit.id, val)}
+              />
+            );
+          } else {
+            const isCompleted = !!record;
+            const habitColor = habit.color || '#8B5CF6';
+            content = (
+              <Checkbox.Root
+                key={habit.id}
+                onCheckedChange={() => handleToggleHabit(habit.id)}
+                checked={isCompleted}
+                className={styles.checkboxRoot}
+                style={{ '--habit-color': habitColor }}
+              >
+                <div className={styles.checkboxIndicatorContainer}>
+                  <Checkbox.Indicator>
+                    <Check size={20} className={styles.checkIcon} />
+                  </Checkbox.Indicator>
+                </div>
+                <div className={styles.habitTextContainer}>
+                  <span className={styles.habitTitle}>{habit.title}</span>
+                  {habit.category && <span className={styles.categoryTag}>{habit.category}</span>}
+                </div>
+              </Checkbox.Root>
+            );
+          }
+
+          // WRAPPER PARA INCLUIR O POPOVER AO LADO
+          // Criamos um container flex para colocar o [Hábito] e o [Lápis] lado a lado
           return (
-            <Checkbox.Root
-              key={habit.id}
-              onCheckedChange={() => handleToggleHabit(habit.id)}
-              checked={isCompleted}
-              disabled={isDisabled}
-              className={styles.checkboxRoot}
-            >
-              {/* O quadrado visual do checkbox (Radix UI) */}
-              <div className={styles.checkboxIndicatorContainer}>
-                <Checkbox.Indicator>
-                  <Check size={20} className={styles.checkIcon} />
-                </Checkbox.Indicator>
+            <div key={habit.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <div style={{ flex: 1 }}>
+                {content}
               </div>
-
-              {/* Título do Hábito */}
-              <span className={styles.habitTitle}>
-                {habit.title}
-              </span>
-            </Checkbox.Root>
+              
+              {/* O ÍCONE DE NOTA */}
+              <NotePopover 
+                habitId={habit.id} 
+                date={dayjs(date).toISOString()} 
+                currentNote={currentNote}
+                onNoteUpdated={handleNoteUpdate}
+              />
+            </div>
           )
         })}
       </div>

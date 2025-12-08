@@ -1,4 +1,3 @@
-// src/components/HabitDay/index.jsx
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import dayjs from 'dayjs';
@@ -7,15 +6,10 @@ import { HabitList } from '../HabitList';
 import styles from './HabitDay.module.css';
 
 export function HabitDay({ amount = 0, completed = 0, date }) {
-  // Cálculo da porcentagem
   const completedPercentage = amount > 0 ? Math.round((completed / amount) * 100) : 0;
 
-  // CORREÇÃO 3: TÍTULO DO MODAL 📅
-  // Adicionamos 12 horas à data local. 
-  // Se ela for 00:00, vira 12:00. Se o fuso tirar 3h, vira 09:00.
-  // Em ambos os casos, CONTINUA SENDO O MESMO DIA.
+  // Ajuste de fuso horário visual (Meio-dia)
   const parsedDate = dayjs(date).add(12, 'hours');
-
   const dayOfWeek = parsedDate.format('dddd');
   const dayAndMonth = parsedDate.format('DD/MM');
 
@@ -34,13 +28,18 @@ export function HabitDay({ amount = 0, completed = 0, date }) {
       <Dialog.Portal>
         <Dialog.Overlay className={styles.overlay} />
 
-        <Dialog.Content className={styles.content}>
+        {/* CORREÇÃO 1: Adicione aria-describedby={undefined} para silenciar o aviso de descrição */}
+        <Dialog.Content className={styles.content} aria-describedby={undefined}>
           <Dialog.Close className={styles.closeButton}>
             <X size={24} aria-label="Fechar" />
           </Dialog.Close>
 
           <span className={styles.dayLabel}>{dayOfWeek}</span>
-          <h1 className={styles.dateTitle}>{dayAndMonth}</h1>
+          
+          {/* CORREÇÃO 2: Troque 'h1' por 'Dialog.Title' */}
+          <Dialog.Title className={styles.dateTitle}>
+            {dayAndMonth}
+          </Dialog.Title>
 
           <HabitList date={date} />
           

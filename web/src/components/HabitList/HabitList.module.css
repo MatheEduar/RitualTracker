@@ -1,10 +1,17 @@
 .habitList {
-  margin-top: 1.5rem;
+  /* Mantém a barra de progresso e a lista separadas */
   display: flex;
   flex-direction: column;
-  gap: 0.75rem; /* Espaço entre os itens */
 }
 
+.habitContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.75rem;
+}
+
+/* O Botão do Checkbox (Wrapper) */
 .checkboxRoot {
   display: flex;
   align-items: center;
@@ -12,13 +19,16 @@
   border: none;
   background: none;
   cursor: pointer;
-  outline: none; /* Remove o contorno padrão feio do browser */
+  outline: none;
+  width: 100%; /* Ocupa a largura toda pra facilitar o clique */
+  padding: 0.25rem 0; /* Aumenta a área de clique vertical */
 }
 
-/* O quadrado do checkbox */
+/* O Quadrado do Checkbox */
 .checkboxIndicatorContainer {
   height: 2rem;
   width: 2rem;
+  min-width: 2rem; /* Garante que não esmaga */
   background-color: var(--surface);
   border: 2px solid var(--border);
   border-radius: 0.5rem;
@@ -29,24 +39,37 @@
   transition: all 0.2s;
 }
 
-/* Quando o mouse passa por cima (Hover) */
+/* Hover: Borda fica da cor do hábito (mas mais escura/clara se quiser) */
 .checkboxRoot:hover .checkboxIndicatorContainer {
   border-color: var(--text-secondary);
 }
 
-/* ESTADO: Marcado (Checked) */
-/* O Radix coloca o atributo data-state="checked" automaticamente */
+/* --- ESTADO MARCADO (CHECKED) --- */
+/* A Mágica: Usamos a variável --habit-color definida no React */
 .checkboxRoot[data-state="checked"] .checkboxIndicatorContainer {
-  background-color: #22c55e; /* Verde Sucesso */
-  border-color: #22c55e;
+  background-color: var(--habit-color); /* Preenche com a cor do hábito */
+  border-color: var(--habit-color);
 }
 
-/* O Texto do Hábito */
+/* O Ícone de Check */
+.checkIcon {
+  color: white; /* Sempre branco para contrastar */
+}
+
+/* Texto e Categoria */
+.habitTextContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
 .habitTitle {
   font-weight: 600;
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.125rem;
   color: var(--text-primary);
   line-height: 1.25;
+  transition: color 0.2s;
 }
 
 /* Quando marcado, risca o texto */
@@ -55,7 +78,9 @@
   color: var(--text-secondary);
 }
 
-/* O ícone de Check (dentro do indicador) */
-.checkIcon {
-  color: white;
+/* Etiqueta da Categoria */
+.categoryTag {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-top: 0.125rem;
 }

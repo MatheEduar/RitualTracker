@@ -2,24 +2,25 @@ import dayjs from 'dayjs';
 import { prisma } from '../lib/prisma.js';
 
 /**
- * Serviço responsável por agregar dados de resumo e detalhes diários.
- * A "Calculadora" da obra que entrega os números prontos para o Controller.
+ * Serviço responsável por agregar dados de resumo e estatísticas.
+ * "O Contador da Obra": Calcula o heatmap e detalha o que aconteceu em cada dia.
  */
 export const summaryService = {
+  
   /**
-   * Retorna o resumo (Heatmap) para pintar os quadradinhos do grid.
+   * Busca o resumo anual (Heatmap) para pintar os quadradinhos do grid.
    * Utiliza SQL Raw para performance na agregação de dados.
-   * * @returns {Promise<Array<{day_id: Date, completed: number, amount: number}>>} Lista de dias com estatísticas.
+   * * CORREÇÃO SPRINT 2:
+   * Utilizamos SUM com CASE para ignorar registros onde o valor é 0.
+   * Isso evita falsos positivos visuais em hábitos numéricos iniciados mas não progredidos.
+   * * @returns {Promise<Array<{day_id: Date, completed: number, amount: number}>>}
    */
   async getSummary() {
-    // Query Raw do Prisma:
-    // 1. Agrupa por data (day_id).
-    // 2. Conta quantos foram completados naquele dia.
-    // 3. Sub-select: Conta quantos hábitos existiam até aquela data (amount).
     const summary = await prisma.$queryRaw`
       SELECT 
         D.day_id,
-        CAST(COUNT(*) AS int) as completed,
+        -- Lógica: Se o valor for maior que 0, soma 1. Se for 0, soma 0.
+        CAST(SUM(CASE WHEN D.value > 0 THEN 1 ELSE 0 END) AS int) as completed,
         (
           SELECT CAST(COUNT(*) AS int)
           FROM habits H
@@ -33,10 +34,10 @@ export const summaryService = {
   },
 
   /**
-   * Retorna os detalhes de um dia específico para exibir no Modal.
-   * Filtra hábitos pela data de criação e pela recorrência (dia da semana).
-   * * @param {string} dateString - A data em formato ISO ou String (ex: "2025-01-20").
-   * @returns {Promise<{possibleHabits: Array, completedHabits: Array<string>}>} Objeto com lista de hábitos e IDs dos completados.
+   * Busca os detalhes de um dia específico (Hábitos possíveis vs Realizados).
+   * Filtra por data de criação e dia da semana (Recorrência).
+   * * @param {string} dateString - Data em formato ISO (ex: "2025-01-20").
+   * @returns {Promise<{possibleHabits: Array, completedHabits: Array}>}
    */
   async getDayDetails(dateString) {
     // 1. Data Base (00:00:00) -> Usada para buscar na tabela de completados (day_habits)
@@ -47,19 +48,17 @@ export const summaryService = {
     const weekDay = dayjs(parsedDate).get('day');
 
     // 3. Final do Dia (23:59:59) -> Usado para filtrar a criação.
-    // CORREÇÃO DE BUG TEMPORAL:
-    // Se usássemos 'parsedDate' (00:00), um hábito criado hoje às 15:00 ficaria de fora.
-    // Usando 'endOfDay', garantimos que qualquer hábito criado HOJE entra na lista.
+    // Garante que hábitos criados hoje (ex: às 15h) apareçam na lista de hoje.
     const endOfDay = dayjs(dateString).endOf('day').toDate();
 
-    // Busca os Hábitos Possíveis (A pauta do dia)
+    // A. Busca os Hábitos que DEVERIAM ser feitos hoje (Pauta)
     const possibleHabits = await prisma.habit.findMany({
       where: {
-        // Regra 1: O hábito deve ter sido criado antes ou durante o dia de hoje.
+        // Regra 1: Criado antes ou durante o dia de hoje.
         created_at: {
-          lte: endOfDay, // Less Than or Equal (Menor ou igual ao final do dia)
+          lte: endOfDay, 
         },
-        // Regra 2: O hábito deve estar configurado para acontecer neste dia da semana.
+        // Regra 2: Configurado para este dia da semana.
         weekDays: {
           some: {
             week_day: weekDay,
@@ -68,20 +67,19 @@ export const summaryService = {
       }
     });
 
-    // Busca os Hábitos Completados (O que foi feito)
+    // B. Busca os registros do que FOI FEITO (Realizado)
     const completedHabits = await prisma.dayHabit.findMany({
       where: {
         day_id: {
-          equals: parsedDate, // Aqui comparamos com 00:00 exato
+          equals: parsedDate,
         }
       }
     });
 
-    // Retorna formatado
     return {
       possibleHabits,
-      // Mapeamos apenas para retornar um array de IDs simples ['uuid-1', 'uuid-2']
-      completedHabits: completedHabits.map(row => row.habit_id),
+      // Retornamos o objeto completo (com 'value') para o Frontend saber o progresso numérico
+      completedHabits, 
     };
   }
 };

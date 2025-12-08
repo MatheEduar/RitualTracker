@@ -1,0 +1,146 @@
+/* O Botão de Lápis (Gatilho) */
+.trigger {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.trigger:hover {
+  background: var(--surface);
+  color: var(--text-primary);
+}
+
+/* Quando o popover está aberto, deixa o ícone roxo */
+.trigger[data-state="open"] {
+  color: var(--primary);
+}
+
+/* O Conteúdo do Balão (Content) */
+.content {
+  border-radius: 8px;
+  padding: 1rem;
+  width: 18rem; /* Largura fixa boa para notas */
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  z-index: 50; /* Acima de tudo */
+  animation: slideUpAndFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* A setinha do balão */
+.arrow {
+  fill: var(--surface); /* Cor do fundo do balão */
+  stroke: var(--border); /* Se quiser borda na seta */
+  stroke-width: 1px;
+}
+
+/* Área de Texto */
+.textarea {
+  width: 100%;
+  height: 6rem;
+  resize: none; /* Impede redimensionar e quebrar layout */
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 0.5rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+
+.textarea:focus {
+  outline: 2px solid var(--primary);
+  border-color: transparent;
+}
+
+/* Botão Salvar */
+.saveButton {
+  width: 100%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.saveButton:hover {
+  background: var(--primary-hover);
+}
+
+
+/* Indicador Ativo (Quando tem nota) */
+.triggerActive {
+  color: var(--primary); /* Ícone Roxo */
+  background-color: rgba(139, 92, 246, 0.1); /* Fundo roxo bem clarinho */
+}
+
+/* O Balão do Tooltip */
+.tooltipContent {
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem; /* Texto pequeno */
+  line-height: 1.4;
+  color: var(--text-primary);
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  animation: slideDownAndFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 60; /* Acima do Popover se necessário */
+  max-width: 16rem; /* Limite de largura para textos longos */
+}
+
+
+.content {
+  border-radius: 8px;
+  padding: 1rem;
+  width: 18rem;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  
+  /* A CORREÇÃO ESTÁ AQUI 👇 */
+  z-index: 2000; /* Bem maior que o Modal (1000) e Overlay (999) */
+  
+  animation: slideUpAndFade 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative; /* Garante que o absolute do closeButton funcione */
+}
+
+
+.closeButton {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 4px;
+  line-height: 0;
+  transition: all 0.2s;
+  
+  /* A CORREÇÃO ESTÁ AQUI 👇 */
+  z-index: 100; /* Garante que ele fique acima de qualquer elemento do balão */
+}
+
+.closeButton:hover {
+  color: var(--text-primary);
+  background-color: var(--border);
+}
+
+@keyframes slideDownAndFade {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

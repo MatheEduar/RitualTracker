@@ -15,13 +15,25 @@ model Habit {
   title      String
   created_at DateTime @default(now())
 
+  // --- SPRINT 1: Visual e Categorias ---
+  // Categoria para agrupar (ex: "Saúde", "Estudo"). Default "Geral" para não quebrar antigos.
+  category   String?  @default("Geral") 
+  // Cor para diferenciar visualmente (ex: #8B5CF6).
+  color      String?  @default("#8B5CF6") 
+
+  // --- SPRINT 2: Metas Numéricas (Quantitativo) ---
+  // Se goal for 0, é um hábito binário (Sim/Não).
+  // Se goal for > 0, é numérico (ex: 2000 ml).
+  goal       Int      @default(0) 
+  unit       String?  // A unidade de medida (ex: "ml", "km", "págs")
+
   dayHabits  DayHabit[] // Relação com os dias completados
   weekDays   HabitWeekDays[]
 
   @@map("habits")
 }
 
-// Modelo do Dia (O Check)
+// Modelo do Dia (O Registro/Check)
 model DayHabit {
   id       String   @id @default(uuid())
   
@@ -30,10 +42,20 @@ model DayHabit {
   habit_id String
   habit    Habit    @relation(fields: [habit_id], references: [id], onDelete: Cascade)
 
+  // --- SPRINT 2 e 3: Registro Detalhado ---
+  // Se for numérico, quanto eu fiz hoje? (Ex: bebi 500ml). 
+  // Default 1 mantém a lógica antiga de "1 check = feito".
+  value    Int      @default(1) 
+  
+  // O Diário de Bordo: Notas opcionais sobre o hábito naquele dia.
+  // @db.Text permite textos longos sem limite de 255 chars.
+  note     String?  @db.Text 
+
   @@unique([day_id, habit_id]) // Não pode marcar o mesmo hábito 2x no mesmo dia
   @@map("day_habits")
 }
 
+// Modelo de Recorrência (Dias da Semana)
 model HabitWeekDays {
   id       String @id @default(uuid())
   habit_id String
