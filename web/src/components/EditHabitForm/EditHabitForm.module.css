@@ -1,0 +1,165 @@
+/* src/components/EditHabitForm/EditHabitForm.module.css */
+
+/* Reutilizando a maioria dos estilos de NewHabitForm, mas para um novo arquivo */
+
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-primary);
+  margin-bottom: 0.75rem;
+  margin-top: 1.5rem;
+  display: block;
+}
+
+.label:first-child {
+  margin-top: 0;
+}
+
+.input {
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-size: 1rem;
+  width: 100%;
+}
+
+.input:focus {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-color: transparent;
+}
+
+/* 4. Meta Numérica */
+.numericToggleContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  background: var(--background);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.checkbox {
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+.checkboxLabel {
+  font-size: 1rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.row {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+/* 5. Recorrência */
+.weekDaySelector {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap; 
+  gap: 0.5rem;
+}
+
+.weekDayButton {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.weekDayButton[data-state='checked'] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* Botão Salvar */
+.submitButton {
+  margin-top: 2rem;
+  width: 100%;
+  padding: 1rem;
+  border-radius: 8px;
+  background: var(--primary); 
+  color: white;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: background-color 0.2s;
+}
+
+.submitButton:hover {
+  background: var(--primary-hover);
+}
+
+/* 3. Cores */
+.colorsGrid {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.colorButton {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%; 
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 0 0 1px var(--border); 
+}
+
+.colorButton[data-state='checked'] {
+  border-color: white;
+  box-shadow: 0 0 0 2px var(--primary);
+}
+
+/* 2. Categorias */
+.categoryGrid {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.categoryButton {
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  background: var(--background);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.categoryButton[data-state='checked'] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}

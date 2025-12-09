@@ -3,7 +3,7 @@ import { prisma } from '../lib/prisma.js';
 
 /**
  * Serviço responsável pela lógica de negócio dos Hábitos.
- * Aqui centralizamos a criação, listagem e manipulação de estado (Check, Valor ou Nota).
+ * Aqui centralizamos a criação, listagem e manipulação de estado (CRUD, Check, Valor ou Nota).
  */
 export const habitService = {
   
@@ -30,7 +30,6 @@ export const habitService = {
         color: color || undefined,
 
         // Campos opcionais de Meta Numérica (Sprint 2)
-        // Se goal não for informado, assume 0 (comportamento binário padrão)
         goal: goal || 0,
         unit: unit || null,
 
@@ -58,16 +57,13 @@ export const habitService = {
 
   /**
    * Alterna o estado de um hábito Binário (Check/Uncheck).
-   * Se existir registro no dia, remove (desmarca). Se não, cria (marca).
    * @param {Object} params
    * @param {string} params.id - UUID do hábito.
    * @param {string} params.dateString - Data do evento em formato ISO.
    */
   async toggle({ id, dateString }) {
-    // Normaliza a data para 00:00:00 para consistência na busca
     const date = dayjs(dateString).startOf('day').toDate();
 
-    // Verifica se já existe o registro de "Feito" neste dia
     const dayHabit = await prisma.dayHabit.findUnique({
       where: {
         day_id_habit_id: {
@@ -78,13 +74,12 @@ export const habitService = {
     });
 
     if (dayHabit) {
-      // Cenário A: Já estava marcado -> Desmarcar (Deletar registro)
+      // Cenário A: Desmarcar (Deletar registro)
       await prisma.dayHabit.delete({
         where: { id: dayHabit.id }
       });
     } else {
-      // Cenário B: Não estava marcado -> Marcar (Criar registro)
-      // O valor default será 1 (definido no schema)
+      // Cenário B: Marcar (Criar registro)
       await prisma.dayHabit.create({
         data: { day_id: date, habit_id: id }
       });
@@ -102,10 +97,6 @@ export const habitService = {
   async updateValue({ id, dateString, value }) {
     const date = dayjs(dateString).startOf('day').toDate();
 
-    // UPSERT: O Canivete Suíço do Banco de Dados
-    // Tenta encontrar pelo par único (dia + hábito).
-    // - Achou? Roda o 'update' e muda o valor.
-    // - Não achou? Roda o 'create' e cria um novo registro com esse valor.
     await prisma.dayHabit.upsert({
       where: {
         day_id_habit_id: {
@@ -126,8 +117,6 @@ export const habitService = {
 
   /**
    * Atualiza a nota (diário) de um hábito em um dia específico.
-   * Rota: PATCH /habits/:id/note
-   * Utiliza UPSERT para permitir criar uma nota mesmo sem ter completado o hábito.
    * @param {Object} params
    * @param {string} params.id - UUID do hábito.
    * @param {string} params.dateString - Data do evento.
@@ -150,10 +139,85 @@ export const habitService = {
         day_id: date,
         habit_id: id,
         note: note,
-        // Ao criar apenas pela nota, o valor default será 1 (definido no schema).
-        // Para hábitos binários, isso marcará como feito (efeito colateral aceitável).
-        // Para numéricos, marcará como 1 (iniciado, mas não necessariamente completo).
       }
+    });
+  },
+
+  // --- NOVO: UPDATE (U do CRUD) ---
+  /**
+   * Atualiza as configurações de um hábito existente, incluindo recorrência e detalhes.
+   * Rota: PATCH /habits/:id
+   * @param {Object} params - Parâmetros de atualização.
+   * @param {string} params.id - UUID do hábito.
+   * @param {string} [params.title] - Novo título. Opcional.
+   * @param {number[]} [params.weekDays] - Novo array de dias da semana (0-6). Opcional.
+   * @param {string} [params.category] - Nova categoria. Opcional.
+   * @param {string} [params.color] - Nova cor. Opcional.
+   * @param {number} [params.goal] - Nova meta numérica. Opcional.
+   * @param {string} [params.unit] - Nova unidade de medida. Opcional.
+   * @returns {Promise<Object>} O hábito atualizado.
+   */
+  async updateHabit({ id, title, weekDays, category, color, goal, unit }) {
+    // Prepara a atualização dos campos escalares (Título, Cor, Meta, etc.)
+    const updateData = {
+      title,
+      category,
+      color,
+      goal,
+      unit,
+    };
+
+    // Remove propriedades undefined/null para não sobrescrever valores existentes
+    Object.keys(updateData).forEach(key => (updateData[key] === undefined || updateData[key] === null) && delete updateData[key]);
+    
+    // Se a recorrência (weekDays) foi enviada, executa a transação de DELETAR/RECRIAR
+    if (weekDays !== undefined) {
+        // Transação: 1. Deleta a recorrência antiga, 2. Atualiza o hábito e cria a nova.
+        await prisma.$transaction([
+            // 1. Deleta a recorrência antiga
+            prisma.habitWeekDays.deleteMany({
+                where: { habit_id: id },
+            }),
+            // 2. Atualiza o hábito principal e cria a nova recorrência
+            prisma.habit.update({
+                where: { id },
+                data: {
+                    ...updateData,
+                    weekDays: {
+                        create: weekDays.map(weekDay => ({ week_day: weekDay })),
+                    },
+                },
+            }),
+        ]);
+        
+        // Se weekDays NÃO foi enviado, fazemos a atualização simples dos escalares
+    } else {
+        await prisma.habit.update({
+            where: { id },
+            data: updateData,
+        });
+    }
+
+    // Retorna o hábito finalizado para o frontend
+    const updatedHabit = await prisma.habit.findUnique({ where: { id } });
+    return updatedHabit;
+  },
+
+  // --- NOVO: DELETE (D do CRUD) ---
+  /**
+   * Remove um hábito permanente e todas as suas ocorrências e recorrências.
+   * Rota: DELETE /habits/:id
+   * @param {Object} params
+   * @param {string} params.id - UUID do hábito a ser deletado.
+   * @returns {Promise<void>}
+   */
+  async deleteHabit({ id }) {
+    // O 'onDelete: Cascade' definido no schema.prisma garante que
+    // todos os registros em day_habits e habit_week_days também sejam apagados.
+    await prisma.habit.delete({
+      where: {
+        id,
+      },
     });
   }
 };

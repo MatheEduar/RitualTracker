@@ -10,14 +10,24 @@ routes.get('/', (req, res) => {
 });
 
 // --- HÁBITOS (CRUD) ---
-routes.post('/habits', habitController.create);
-routes.get('/habits', habitController.index);
 
-// --- AÇÕES NOS HÁBITOS ---
+// Create (C)
+routes.post('/habits', habitController.create);
+// Read (R)
+routes.get('/habits', habitController.index); 
+
+// --- NOVO: UPDATE e DELETE PERMANENTE ---
+
+// Update (U) - Atualiza metadados e recorrência
+routes.patch('/habits/:id', habitController.update); 
+// Delete (D) - Remove o hábito permanentemente
+routes.delete('/habits/:id', habitController.delete); 
+
+// --- AÇÕES DIÁRIAS ---
+
+// Ações no Registro do Dia
 routes.patch('/habits/:id/toggle', habitController.toggle); // Binário (Check)
 routes.patch('/habits/:id/value', habitController.updateValue); // Numérico (Input)
-
-// 👇👇👇 A ROTA QUE PROVAVELMENTE FALTOU 👇👇👇
 routes.patch('/habits/:id/note', habitController.updateNote); // Notas (Diário)
 
 // --- RESUMO E DETALHES ---
