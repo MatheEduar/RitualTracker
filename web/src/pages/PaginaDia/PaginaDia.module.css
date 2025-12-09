@@ -1,0 +1,85 @@
+.container {
+  padding: 2rem 1rem;
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto;
+}
+
+/* Botão de Voltar */
+.backButton {
+  color: var(--text-secondary); 
+  background: none; 
+  border: none; 
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  transition: color 0.2s;
+}
+
+.backButton:hover {
+  color: var(--text-primary);
+}
+
+.dayLabel {
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  display: block;
+}
+
+.dateTitle {
+  font-weight: 800;
+  font-size: 1.875rem;
+  margin-top: 0.25rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.25;
+}
+
+.divider {
+  margin: 1.5rem 0;
+  border-color: var(--border);
+}
+
+.dashboardTitle {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+/* Container do Dashboard (Métricas) */
+.dashboardMetrics {
+  display: flex;
+  gap: 1rem;
+  border: 1px solid var(--border);
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: var(--surface);
+}
+
+/* Caixa individual de métrica */
+.metricBox {
+  flex: 1;
+  text-align: center;
+}
+
+.metricValue {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 0.25rem;
+}
+
+.metricLabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  margin-top: 2rem;
+}

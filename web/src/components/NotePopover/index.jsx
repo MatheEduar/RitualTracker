@@ -19,11 +19,15 @@ export function NotePopover({ habitId, date, currentNote, onNoteUpdated }) {
 
   async function handleSave(e) {
     e?.preventDefault();
-    setIsOpen(false);
+    // FECHAMENTO OTIMISTA
+    setIsOpen(false); 
 
     try {
       await habitService.updateNote(habitId, date, note);
-      if (onNoteUpdated) onNoteUpdated(habitId, note);
+      
+      if (onNoteUpdated) {
+        onNoteUpdated(habitId, note);
+      }
       toast.success('Nota salva!');
     } catch (error) {
       console.error(error);
@@ -31,11 +35,11 @@ export function NotePopover({ habitId, date, currentNote, onNoteUpdated }) {
     }
   }
 
-  // FUNÇÃO MANUAL PARA FECHAR
+  // FUNÇÃO MANUAL PARA FECHAR O MODAL (CANCELAR)
   function handleClose(e) {
-    e.stopPropagation(); // Impede que o clique passe para baixo
+    e.stopPropagation(); // Evita que o clique feche o modal principal (HabitDay)
     e.preventDefault();
-    setIsOpen(false); // FORÇA O FECHAMENTO
+    setIsOpen(false); // COMANDO DIRETO PARA FECHAR
   }
 
   const TriggerButton = (
@@ -74,7 +78,7 @@ export function NotePopover({ habitId, date, currentNote, onNoteUpdated }) {
           side="right" 
           sideOffset={5}
         >
-          {/* BOTÃO X MANUAL */}
+          {/* BOTÃO X MANUAL: Usa o comando direto para garantir o fechamento */}
           <button 
             type="button"
             className={styles.closeButton} 

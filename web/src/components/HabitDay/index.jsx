@@ -1,50 +1,33 @@
-import * as Dialog from '@radix-ui/react-dialog';
+// src/components/HabitDay/index.jsx
+
 import clsx from 'clsx';
 import dayjs from 'dayjs';
-import { X } from 'phosphor-react';
-import { HabitList } from '../HabitList';
-import styles from './HabitDay.module.css';
+import { Link } from 'react-router-dom'; // Importa o componente Link
+
+// Importamos styles, mas não precisamos mais de Dialog, X ou HabitList
+import styles from './HabitDay.module.css'; 
 
 export function HabitDay({ amount = 0, completed = 0, date }) {
   const completedPercentage = amount > 0 ? Math.round((completed / amount) * 100) : 0;
-
-  // Ajuste de fuso horário visual (Meio-dia)
-  const parsedDate = dayjs(date).add(12, 'hours');
-  const dayOfWeek = parsedDate.format('dddd');
-  const dayAndMonth = parsedDate.format('DD/MM');
+  
+  // Formato da URL: YYYY-MM-DD
+  const dateParam = dayjs(date).format('YYYY-MM-DD');
 
   return (
-    <Dialog.Root>
-      <Dialog.Trigger
-        className={clsx(styles.habitDay, {
-          [styles.level1]: completedPercentage > 0 && completedPercentage < 20,
-          [styles.level2]: completedPercentage >= 20 && completedPercentage < 40,
-          [styles.level3]: completedPercentage >= 40 && completedPercentage < 60,
-          [styles.level4]: completedPercentage >= 60 && completedPercentage < 80,
-          [styles.level5]: completedPercentage >= 80,
-        })}
-      />
-
-      <Dialog.Portal>
-        <Dialog.Overlay className={styles.overlay} />
-
-        {/* CORREÇÃO 1: Adicione aria-describedby={undefined} para silenciar o aviso de descrição */}
-        <Dialog.Content className={styles.content} aria-describedby={undefined}>
-          <Dialog.Close className={styles.closeButton}>
-            <X size={24} aria-label="Fechar" />
-          </Dialog.Close>
-
-          <span className={styles.dayLabel}>{dayOfWeek}</span>
-          
-          {/* CORREÇÃO 2: Troque 'h1' por 'Dialog.Title' */}
-          <Dialog.Title className={styles.dateTitle}>
-            {dayAndMonth}
-          </Dialog.Title>
-
-          <HabitList date={date} />
-          
-        </Dialog.Content>
-      </Dialog.Portal>
-    </Dialog.Root>
+    // O QUADRADINHO AGORA É UM LINK
+    <Link
+      // Define o destino da rota: /day/2025-01-20
+      to={`/day/${dateParam}`} 
+      
+      // Aplicamos o estilo do quadradinho na tag Link
+      className={clsx(styles.habitDay, {
+        [styles.level1]: completedPercentage > 0 && completedPercentage < 20,
+        [styles.level2]: completedPercentage >= 20 && completedPercentage < 40,
+        [styles.level3]: completedPercentage >= 40 && completedPercentage < 60,
+        [styles.level4]: completedPercentage >= 60 && completedPercentage < 80,
+        [styles.level5]: completedPercentage >= 80,
+      })}
+    />
+    // TODO: Certifique-se de ter apagado TODO o código do Dialog.Portal que estava aqui.
   );
 }

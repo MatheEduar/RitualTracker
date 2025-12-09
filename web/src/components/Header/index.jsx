@@ -24,8 +24,8 @@ export function Header() {
         <Dialog.Portal>
           <Dialog.Overlay className={styles.overlay} />
 
-          {/* CORREÇÃO: Adicione aria-describedby={undefined} aqui também */}
-          <Dialog.Content className={styles.content} aria-describedby={undefined}>
+          {/* CORREÇÃO DE ACESSIBILIDADE: Removemos a prop aria-describedby */}
+          <Dialog.Content className={styles.content}>
             <Dialog.Close className={styles.closeButton}>
               <X size={24} aria-label="Fechar" />
             </Dialog.Close>
@@ -33,6 +33,11 @@ export function Header() {
             <Dialog.Title className={styles.title}>
               Criar Hábito
             </Dialog.Title>
+
+            {/* Adicionando descrição acessível para silenciar o aviso */}
+            <Dialog.Description style={{ display: 'none' }}>
+              Utilize o formulário abaixo para registrar um novo hábito, definir sua recorrência, categoria e meta.
+            </Dialog.Description>
 
             <NewHabitForm onClose={() => setIsModalOpen(false)} />
             
