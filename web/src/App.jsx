@@ -1,16 +1,15 @@
 // src/App.jsx
-
 import { Toaster } from 'sonner';
-import { Routes, Route } from 'react-router-dom'; 
+import { Routes, Route } from 'react-router-dom';
 import { Header } from './components/Header';
-import { SummaryTable } from './components/SummaryTable';
+// import { SummaryTable } from './components/SummaryTable'; // Não precisa mais aqui
 import { HabitsProvider } from './context/HabitsContext';
 import styles from './App.module.css';
 import './index.css';
 
-// Certifique-se de que o caminho para PaginaDia e PaginaConfiguracoes está correto!
 import { PaginaDia } from './pages/PaginaDia';
-import { PaginaConfiguracoes } from './pages/PaginaConfiguracoes'; // <--- VERIFIQUE ESTE CAMINHO
+import { PaginaConfiguracoes } from './pages/PaginaConfiguracoes';
+import { HomePage } from './pages/HomePage'; // <--- NOVO IMPORT
 
 export function App() {
   return (
@@ -21,8 +20,8 @@ export function App() {
           <Header /> 
 
           <Routes>
-            {/* Rota Home */}
-            <Route path="/" element={<SummaryTable />} />
+            {/* Rota Home: AGORA APONTA PARA A NOVA HOME PAGE */}
+            <Route path="/" element={<HomePage />} /> 
             
             {/* Rota do Dia */}
             <Route path="/day/:date" element={<PaginaDia />} />

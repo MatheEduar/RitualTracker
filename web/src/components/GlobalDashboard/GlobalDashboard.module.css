@@ -1,0 +1,57 @@
+.container {
+  width: 100%;
+  max-width: 48rem; /* Alinhado com o Header */
+  margin-bottom: 2rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+/* Grid para as Métricas */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  text-align: center;
+}
+
+/* Cartão de Métrica Individual */
+.metricCard {
+  padding: 1rem 0.5rem;
+  border-radius: 8px;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+}
+
+.metricValue {
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 0.25rem;
+}
+
+.metricLabel {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* Cores específicas (Opcional, se quisermos destacar a Streak) */
+.streakValue {
+  color: #f97316; /* Laranja */
+}
+
+.completionValue {
+  color: #22c55e; /* Verde */
+}
+
+.daysValue {
+  color: #3b82f6; /* Azul */
+}

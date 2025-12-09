@@ -3,10 +3,11 @@ import { api } from "../lib/axios";
 /**
  * Serviço de comunicação com o Backend (API).
  * Traduz as chamadas de função do Frontend para requisições HTTP (GET, POST, PATCH, DELETE).
+ * Gerencia tanto as ações diárias (toggle, value, note) quanto o CRUD permanente (habits).
  */
 export const habitService = {
   
-  // --- INFORMAÇÕES DE RESUMO ---
+  // --- INFORMAÇÕES DE RESUMO E ANÁLISE ---
 
   /**
    * Busca os dados agregados para construir o Heatmap.
@@ -31,7 +32,17 @@ export const habitService = {
     return response.data;
   },
 
-  // --- AÇÕES DIÁRIAS ---
+  /**
+   * Busca as métricas globais para o Dashboard principal (Streak, Conclusão Total).
+   * Rota: GET /analytics/global
+   * @returns {Promise<Object>} Dados de analytics globais.
+   */
+  getGlobalAnalytics: async () => {
+    const response = await api.get('/analytics/global');
+    return response.data;
+  },
+  
+  // --- AÇÕES DIÁRIAS (Modificam o registro do dia) ---
 
   /**
    * Alterna o estado de um hábito Binário (Marca/Desmarca).

@@ -1,0 +1,13 @@
+.container {
+    width: 100%;
+    max-width: 48rem; /* Mantemos a largura máxima para alinhar com o Header */
+    margin: 0 auto;
+    
+    display: flex;
+    flex-direction: column; /* Organiza os filhos em coluna */
+    gap: 1.5rem; /* Espaço entre o Dashboard e o Heatmap */
+    
+    /* Garante que o conteúdo tenha espaço na vertical */
+    padding-top: 1rem;
+    padding-bottom: 2rem;
+}

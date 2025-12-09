@@ -16,8 +16,6 @@ routes.post('/habits', habitController.create);
 // Read (R)
 routes.get('/habits', habitController.index); 
 
-// --- NOVO: UPDATE e DELETE PERMANENTE ---
-
 // Update (U) - Atualiza metadados e recorrência
 routes.patch('/habits/:id', habitController.update); 
 // Delete (D) - Remove o hábito permanentemente
@@ -33,3 +31,6 @@ routes.patch('/habits/:id/note', habitController.updateNote); // Notas (Diário)
 // --- RESUMO E DETALHES ---
 routes.get('/summary', summaryController.index);
 routes.get('/day', summaryController.showDay);
+
+// --- NOVO: ANÁLISE GLOBAL (Dashboard Principal) ---
+routes.get('/analytics/global', summaryController.globalAnalytics);

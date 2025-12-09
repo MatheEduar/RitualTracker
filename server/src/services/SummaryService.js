@@ -3,17 +3,14 @@ import { prisma } from '../lib/prisma.js';
 
 /**
  * Serviço responsável por agregar dados de resumo e estatísticas.
- * "O Contador da Obra": Calcula o heatmap e detalha o que aconteceu em cada dia.
+ * "O Contador da Obra": Calcula o heatmap, detalha o dia e fornece análises globais.
  */
 export const summaryService = {
   
   /**
    * Busca o resumo anual (Heatmap) para pintar os quadradinhos do grid.
-   * Utiliza SQL Raw para performance na agregação de dados.
-   * * CORREÇÃO SPRINT 2:
-   * Utilizamos SUM com CASE para ignorar registros onde o valor é 0.
-   * Isso evita falsos positivos visuais em hábitos numéricos iniciados mas não progredidos.
-   * * @returns {Promise<Array<{day_id: Date, completed: number, amount: number}>>}
+   * Rota: GET /summary
+   * @returns {Promise<Array<{day_id: Date, completed: number, amount: number}>>}
    */
   async getSummary() {
     const summary = await prisma.$queryRaw`
@@ -35,30 +32,21 @@ export const summaryService = {
 
   /**
    * Busca os detalhes de um dia específico (Hábitos possíveis vs Realizados).
-   * Filtra por data de criação e dia da semana (Recorrência).
-   * * @param {string} dateString - Data em formato ISO (ex: "2025-01-20").
+   * Rota: GET /day?date=...
+   * @param {string} dateString - Data em formato ISO (ex: "2025-01-20").
    * @returns {Promise<{possibleHabits: Array, completedHabits: Array}>}
    */
   async getDayDetails(dateString) {
-    // 1. Data Base (00:00:00) -> Usada para buscar na tabela de completados (day_habits)
-    // O banco salva day_habits sempre com hora zerada.
     const parsedDate = dayjs(dateString).startOf('day').toDate();
-    
-    // 2. Dia da Semana (0-6) -> Usado para filtrar a recorrência.
     const weekDay = dayjs(parsedDate).get('day');
-
-    // 3. Final do Dia (23:59:59) -> Usado para filtrar a criação.
-    // Garante que hábitos criados hoje (ex: às 15h) apareçam na lista de hoje.
     const endOfDay = dayjs(dateString).endOf('day').toDate();
 
     // A. Busca os Hábitos que DEVERIAM ser feitos hoje (Pauta)
     const possibleHabits = await prisma.habit.findMany({
       where: {
-        // Regra 1: Criado antes ou durante o dia de hoje.
         created_at: {
           lte: endOfDay, 
         },
-        // Regra 2: Configurado para este dia da semana.
         weekDays: {
           some: {
             week_day: weekDay,
@@ -78,8 +66,83 @@ export const summaryService = {
 
     return {
       possibleHabits,
-      // Retornamos o objeto completo (com 'value') para o Frontend saber o progresso numérico
       completedHabits, 
+    };
+  },
+
+  // --- NOVO: ANÁLISE GLOBAL E STREAK ---
+  
+  /**
+   * Calcula as métricas globais do RitualTracker (Streak, Porcentagem de Conclusão de Dias).
+   * Rota: GET /analytics/global
+   * @returns {Promise<{totalDaysTracked: number, completedDaysCount: number, globalCompletion: number, streak: number}>}
+   */
+  async getGlobalAnalytics() {
+    const today = dayjs().startOf('day').toDate();
+    
+    // 1. Encontra a data do primeiro hábito criado para definir o início do rastreamento.
+    const firstHabit = await prisma.habit.findFirst({
+      orderBy: { created_at: 'asc' },
+      select: { created_at: true },
+    });
+
+    if (!firstHabit) {
+      return { totalDaysTracked: 0, completedDaysCount: 0, globalCompletion: 0, streak: 0 };
+    }
+
+    const startDate = dayjs(firstHabit.created_at).startOf('day');
+    
+    // Calcula quantos dias passaram desde o primeiro hábito até hoje
+    const totalDaysTracked = dayjs(today).diff(startDate, 'day') + 1;
+
+    // 2. Busca todos os dias que foram 100% concluídos (Dias "Verdes")
+    // Compara a soma de checks concluídos (value > 0) com o total de hábitos possíveis para aquele dia.
+    const completedDays = await prisma.$queryRaw`
+      SELECT D.day_id
+      FROM day_habits D
+      GROUP BY D.day_id
+      HAVING CAST(SUM(CASE WHEN D.value > 0 THEN 1 ELSE 0 END) AS INT) = (
+        SELECT CAST(COUNT(*) AS INT) 
+        FROM habits H
+        INNER JOIN habit_week_days HWD ON H.id = HWD.habit_id
+        -- Garante que o hábito foi criado antes ou no dia do registro
+        WHERE HWD.week_day = EXTRACT(DOW FROM D.day_id) AND H.created_at <= D.day_id
+      )
+      ORDER BY D.day_id DESC;
+    `;
+    
+    // 3. Cálculo da Streak (Sequência de Dias Concluídos)
+    let streak = 0;
+    let lastDay = dayjs().startOf('day');
+    
+    const completedDaysMap = completedDays.map(d => dayjs(d.day_id).startOf('day').valueOf());
+    
+    // Itera para trás para encontrar a sequência contínua
+    while (true) {
+        const targetDay = lastDay.valueOf();
+        
+        // Se a lista de dias completos inclui o dia que estamos checando...
+        if (completedDaysMap.includes(targetDay)) {
+            streak++;
+            lastDay = lastDay.subtract(1, 'day');
+        } else if (dayjs(targetDay).isBefore(startDate, 'day')) {
+             // Se chegarmos antes do início do rastreamento, para.
+            break;
+        } else {
+             // Se o dia não estiver completo, a sequência quebra.
+            break; 
+        }
+    }
+
+    const completedDaysCount = completedDays.length;
+    // Porcentagem de dias totalmente concluídos em relação ao total rastreado
+    const globalCompletion = totalDaysTracked > 0 ? Math.round((completedDaysCount / totalDaysTracked) * 100) : 0;
+    
+    return {
+      totalDaysTracked,
+      completedDaysCount,
+      globalCompletion, 
+      streak,
     };
   }
 };
